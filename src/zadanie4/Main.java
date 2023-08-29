@@ -1,5 +1,14 @@
 package zadanie4;
-
+//Mamy dany kod:
+//class Person { String name, int age, konstruktor, gety, sety, tostring }
+//Set<Person> people = new HashSet<>();
+//Person p1 = new Person("X", 30);
+//people.add(p1);
+//i teraz dlaczego:
+//people.contains(p1); // zwroci true
+//ale juz
+//people.contains(new Person("X", 30)); // zwroci false.
+//co nalezy zrobic zeby w drugim przypadku tez zwrocilo true?
 import java.util.HashSet;
 import java.util.Set;
 
