@@ -1,9 +1,9 @@
 package zadanie1;
 
 public class SumThread extends Thread{
-    private int[] array;
-    private int start;
-    private int end;
+    private final int[] array;
+    private final int start;
+    private final int end;
     private long partialSum;
 
     public SumThread(int[] array, int start, int end) {

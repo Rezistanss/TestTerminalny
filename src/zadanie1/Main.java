@@ -5,6 +5,7 @@ package zadanie1;
 //- policz ile czasu potrwa liczenie sumy wszystkich elementow 4 watkow
 //- policz ile czasu potrwa liczenie sumy wszystkich elementow 8 watkow
 //w komentarzu wypisz raport jak postępuje czas wraz ze wzrostem ilosci watkow. [lub jak spada]
+
 import java.util.Random;
 
 public class Main {
@@ -63,14 +64,12 @@ public class Main {
     public static long calculateSumMultiThread(int[] array, int numThreads) {
         int segmentSize = array.length / numThreads;
         SumThread[] threads = new SumThread[numThreads];
-
         for (int i = 0; i < numThreads; i++) {
             int start = i * segmentSize;
             int end = (i == numThreads - 1) ? array.length : (i + 1) * segmentSize;
             threads[i] = new SumThread(array, start, end);
             threads[i].start();
         }
-
         long totalSum = 0;
         try {
             for (SumThread thread : threads) {
@@ -80,8 +79,6 @@ public class Main {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-
         return totalSum;
     }
-
 }
