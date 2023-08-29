@@ -21,6 +21,8 @@ public class Main {
         endTime = System.currentTimeMillis();
         System.out.println("Single thread sum: " + sumSingleThread);
         System.out.println("Time taken with 1 thread: " + (endTime - startTime) + " ms");
+        //Przy użyciu 1 wątku zajmuje to około 70-80ms
+
 
         // Liczenie sumy przy użyciu 2 wątków
         startTime = System.currentTimeMillis();
@@ -28,6 +30,8 @@ public class Main {
         endTime = System.currentTimeMillis();
         System.out.println("Two threads sum: " + sumTwoThreads);
         System.out.println("Time taken with 2 threads: " + (endTime - startTime) + " ms");
+        //Przy użyciu 2 wątków czas zmniejsza się niemal dwukrotnie, zajmuje to między 38-45ms
+
 
         // Liczenie sumy przy użyciu 4 wątków
         startTime = System.currentTimeMillis();
@@ -35,6 +39,8 @@ public class Main {
         endTime = System.currentTimeMillis();
         System.out.println("Four threads sum: " + sumFourThreads);
         System.out.println("Time taken with 4 threads: " + (endTime - startTime) + " ms");
+        //Przy użyciu 4 wątków czas zmniejsza się i wyliczenie zajmuje już około 30ms
+
 
         // Liczenie sumy przy użyciu 8 wątków
         startTime = System.currentTimeMillis();
@@ -42,6 +48,16 @@ public class Main {
         endTime = System.currentTimeMillis();
         System.out.println("Eight threads sum: " + sumEightThreads);
         System.out.println("Time taken with 8 threads: " + (endTime - startTime) + " ms");
+        //Przy użyciu 8 wątków czas zmniejsza się jeszcze bardziej i wyliczenie zajmuje około 26ms
+
+        /*
+        Wnioski:
+        Użycie większej ilości wątków ma realny wpływ na działanie programu, lecz wpływa to na wykorzystanie sprzętowe.
+        W moim przypadku spokojnie by wystarczyło użyć 4 wątków, ponieważ różnica między użyciem 4 a 8 wątków jest bardzo mała,
+        zaledwie 4ms.
+        Największą różnicę widać gdy porównamy wyliczenie przy pomocy jednego wątka i przy pomocy dwóch. Niemal o 50% skraca się czas
+        ładowania/ wyliczania, a nie zwiększa to, aż tak bardzo wymagań sprzętowych
+         */
     }
 
     public static int[] generateRandomArray(int size) {

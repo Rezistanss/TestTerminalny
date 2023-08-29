@@ -5,6 +5,9 @@ public class File2 {
         int x = 5;
         double y = 3.15;
         boolean checker = true;
+        /*
+
+         */
 
         System.out.println("Hello test File2");
     }

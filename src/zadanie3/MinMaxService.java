@@ -1,6 +1,6 @@
 package zadanie3;
 
-import zadanie3.Exceptions.NullElementException;
+import zadanie3.exceptions.NullElementException;
 
 import java.util.List;
 import java.util.Objects;

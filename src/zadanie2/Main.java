@@ -23,8 +23,15 @@ public class Main {
     public static void main(String[] args) {
         File file1 = new File("src/zadanie2/File1.java");
         File file2 = new File("src/zadanie2/File2.java");
+        File file3 = new File("src/zadanie2/File3WithoutPrimitives.java");
+        File file4 = new File("src/zadanie2/TestFile");
 
-        Map<String, Integer> primitiveCounts = countPrimitives(file1, file2);
+        Map<String, Integer> primitiveCounts = countPrimitives(file1, file2, file3, file4);
         System.out.println(primitiveCounts);
+
+        // jest użyty thread by każdy plik używał się w jednym momencie oraz jest użyty synchronized by nie naliczało dodatkowo intów
+        // wynik został przetestowany pod względem występowania primitywnych zmiennych w cydzysłowie, w pliku textowym lub w komnetarzu czy w
+        // comment boxie
+        //Wynik: {boolean=2, double=1, int=2, long=1}
     }
 }

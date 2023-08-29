@@ -4,60 +4,82 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CountDownLatch;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class PrimitiveCounter {
-    public static Map<String, Integer> countPrimitives(File... javaFiles) {
-        Map<String, Integer> result = new HashMap<>();
-        Thread[] threads = new Thread[javaFiles.length];
-        for (int i = 0; i < javaFiles.length; i++) {
-            final File file = javaFiles[i];
-            threads[i] = new Thread(() -> {
-                Map<String, Integer> fileCounter = countPrimitivesInFile(file);
-                synchronized (result) {
-                    mergeCounts(result, fileCounter);
+    public static Map<String, Integer> countPrimitives(File... files) {
+        Map<String, Integer> countMap = new ConcurrentHashMap<>();
+        CountDownLatch latch = new CountDownLatch(files.length);
+
+        for (File file : files) {
+            new Thread(() -> {
+                if (file.exists() && file.isFile() && isJavaFile(file)) {
+                    try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+                        String line;
+                        boolean multiLineComment = false;
+
+                        while ((line = br.readLine()) != null) {
+                            if (multiLineComment) {
+                                if (line.contains("*/")) {
+                                    multiLineComment = false;
+                                    line = line.substring(line.indexOf("*/") + 2);
+                                } else {
+                                    continue;
+                                }
+                            } else if (line.contains("/*")) {
+                                multiLineComment = true;
+                                int startCommentIndex = line.indexOf("/*");
+                                int endCommentIndex = line.indexOf("*/", startCommentIndex);
+                                if (endCommentIndex >= 0) {
+                                    line = line.substring(0, startCommentIndex) + line.substring(endCommentIndex + 2);
+                                } else {
+                                    line = line.substring(0, startCommentIndex);
+                                }
+                            }
+
+                            if (line.contains("//")) {
+                                line = line.substring(0, line.indexOf("//"));
+                            }
+
+                            if (!line.contains("\"") && !line.contains("'") && !line.contains("/*") && !line.contains("*/")) {
+                                countPrimitivesInLine(line, countMap);
+                            }
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }
-            });
-            threads[i].start();
+                latch.countDown();
+            }).start();
         }
-        for (Thread thread : threads) {
-            try {
-                thread.join();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-        return result;
-    }
 
-    private static void mergeCounts(Map<String, Integer> totalCounts, Map<String, Integer> countsToAdd) {
-        for (Map.Entry<String, Integer> entry : countsToAdd.entrySet()) {
-            totalCounts.put(entry.getKey(), totalCounts.getOrDefault(entry.getKey(), 0) + entry.getValue());
-        }
-    }
-
-    private static Map<String, Integer> countPrimitivesInFile(File file) {
-        Map<String, Integer> counts = new HashMap<>();
-        if (!file.exists() || !file.isFile() || !file.getName().endsWith(".java")) {
-            return counts;
-        }
-        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                countPrimitiveDeclarations(line, counts);
-            }
-        } catch (IOException e) {
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        return counts;
+
+        return countMap;
     }
 
-    private static void countPrimitiveDeclarations(String line, Map<String, Integer> counts) {
-        String[] primitiveTypes = {"int", "long", "short", "byte", "float", "double", "char", "boolean"};
+    private static boolean isJavaFile(File file) {
+        String fileName = file.getName();
+        return fileName.endsWith(".java");
+    }
+
+    private static void countPrimitivesInLine(String line, Map<String, Integer> countMap) {
+        String[] primitiveTypes = {"int", "double", "float", "boolean", "char", "byte", "short", "long"};
         for (String primitiveType : primitiveTypes) {
-            if (line.contains(primitiveType)) {
-                counts.put(primitiveType, counts.getOrDefault(primitiveType, 0) + 1);
+            Pattern pattern = Pattern.compile("\\b" + primitiveType + "\\b");
+            Matcher matcher = pattern.matcher(line);
+            while (matcher.find()) {
+                synchronized (countMap) {
+                    countMap.merge(primitiveType, 1, Integer::sum);
+                }
             }
         }
     }
