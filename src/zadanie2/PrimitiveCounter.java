@@ -77,10 +77,20 @@ public class PrimitiveCounter {
             Pattern pattern = Pattern.compile("\\b" + primitiveType + "\\b");
             Matcher matcher = pattern.matcher(line);
             while (matcher.find()) {
-                synchronized (countMap) {
-                    countMap.merge(primitiveType, 1, Integer::sum);
+                if (!isInQuotes(line, matcher.start())) {
+                    synchronized (countMap) {
+                        countMap.merge(primitiveType, 1, Integer::sum);
+                    }
                 }
             }
         }
+    }
+
+    private static boolean isInQuotes(String line, int index) {
+        int singleQuoteIndex = line.indexOf("'", index);
+        int doubleQuoteIndex = line.indexOf("\"", index);
+
+        return (singleQuoteIndex >= 0 && singleQuoteIndex < index) ||
+                (doubleQuoteIndex >= 0 && doubleQuoteIndex < index);
     }
 }

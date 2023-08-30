@@ -3,4 +3,5 @@ Test file where I will check if my method is reading primitives from txt.
 long
 boolean
 
-int
+int c = 5;
+boolean y = true;
