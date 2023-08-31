@@ -21,9 +21,18 @@ import static zadanie2.PrimitiveCounter.countPrimitives;
 
 public class Main {
     public static void main(String[] args) {
+
+        //File 1 zawiera inty zakomentowane za pomocą //
         File file1 = new File("src/zadanie2/File1.java");
+
+        //File 2 zawiera inty zakomentowane wewnątrz comment boxa /* */
+        //oraz Stringa z wartością "int = 5; boolean = true;";
         File file2 = new File("src/zadanie2/File2.java");
+
+        //File 3 Zawiera liste imion, w którym został podany int
         File file3 = new File("src/zadanie2/File3WithoutPrimitives.java");
+
+        //File 4 - jset to plik tekstowy
         File file4 = new File("src/zadanie2/TestFile");
 
         Map<String, Integer> primitiveCounts = countPrimitives(file1, file2, file3, file4);
