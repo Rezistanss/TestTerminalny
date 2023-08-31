@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
@@ -20,32 +21,21 @@ public class PrimitiveCounter {
                 if (file.exists() && file.isFile() && isJavaFile(file)) {
                     try (BufferedReader br = new BufferedReader(new FileReader(file))) {
                         String line;
-                        boolean multiLineComment = false;
 
                         while ((line = br.readLine()) != null) {
-                            if (multiLineComment) {
-                                if (line.contains("*/")) {
-                                    multiLineComment = false;
-                                    line = line.substring(line.indexOf("*/") + 2);
-                                } else {
-                                    continue;
-                                }
-                            } else if (line.contains("/*")) {
-                                multiLineComment = true;
-                                int startCommentIndex = line.indexOf("/*");
-                                int endCommentIndex = line.indexOf("*/", startCommentIndex);
-                                if (endCommentIndex >= 0) {
-                                    line = line.substring(0, startCommentIndex) + line.substring(endCommentIndex + 2);
-                                } else {
-                                    line = line.substring(0, startCommentIndex);
-                                }
-                            }
+                            if (!line.isBlank()) {
+                                // check and skip if it's multiline comment
+                                line = skipMultilineComment(br, line.trim());
 
-                            if (line.contains("//")) {
-                                line = line.substring(0, line.indexOf("//"));
-                            }
+                                // checks if line is commented and skip
+                                while (line.trim().startsWith("//")) {
+                                    line = br.readLine();
+                                }
 
-                            if (!line.contains("\"") && !line.contains("'") && !line.contains("/*") && !line.contains("*/")) {
+                                // check if line is not primitive type and skip
+                                if (!line.isBlank() && Character.isUpperCase(line.charAt(0)))
+                                    line = br.readLine();
+
                                 countPrimitivesInLine(line, countMap);
                             }
                         }
@@ -66,24 +56,34 @@ public class PrimitiveCounter {
         return countMap;
     }
 
+    private static String skipMultilineComment(BufferedReader br, String line) throws IOException {
+        if (line.startsWith("/*")) {
+            // skips all lines until multiline comment ends
+            while (!line.contains("*/")) {
+                line = br.readLine();
+            }
+        }
+        return line.trim();
+    }
+
     private static boolean isJavaFile(File file) {
         String fileName = file.getName();
         return fileName.endsWith(".java");
     }
 
     private static void countPrimitivesInLine(String line, Map<String, Integer> countMap) {
-        String[] primitiveTypes = {"int", "double", "float", "boolean", "char", "byte", "short", "long"};
-        for (String primitiveType : primitiveTypes) {
-            Pattern pattern = Pattern.compile("\\b" + primitiveType + "\\b");
+        List<String> primitiveTypes = List.of("int", "double", "float", "boolean", "char", "byte", "short", "long");
+        primitiveTypes.forEach(type -> {
+            Pattern pattern = Pattern.compile("\\b" + type + "\\b");
             Matcher matcher = pattern.matcher(line);
             while (matcher.find()) {
                 if (!isInQuotes(line, matcher.start())) {
                     synchronized (countMap) {
-                        countMap.merge(primitiveType, 1, Integer::sum);
+                        countMap.merge(type, 1, Integer::sum);
                     }
                 }
             }
-        }
+        });
     }
 
     private static boolean isInQuotes(String line, int index) {
