@@ -41,6 +41,6 @@ public class Main {
         // jest użyty thread by każdy plik używał się w jednym momencie oraz jest użyty synchronized by nie naliczało dodatkowo intów
         // wynik został przetestowany pod względem występowania primitywnych zmiennych w cydzysłowie, w pliku textowym lub w komnetarzu czy w
         // comment boxie
-        //Wynik: {boolean=2, double=1, int=2, long=1}
+        //Wynik: {boolean=2, double=1, int=3, long=1}
     }
 }

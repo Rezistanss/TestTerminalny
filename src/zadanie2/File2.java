@@ -11,6 +11,7 @@ public class File2 {
          */
         String name = "int = 5; boolean = true;";
 
-        System.out.println("Hello test File2");
+        x = (int) (y + x);
+        System.out.println("int x = " + x);
     }
 }
